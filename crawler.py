@@ -15,5 +15,7 @@ courts = []
 
 for court in s.findAll('a') :
     courts.append(court.string)
-#print(s.findAll('a').string)
+
+for i in range(0,3):
+    courts.pop(0)
 print(courts)
