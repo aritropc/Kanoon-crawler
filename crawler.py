@@ -4,9 +4,12 @@ import os # for os.path.isfile()
 import requests # fetch content from websites
 import cfscrape # scrape clouflare websites
 from bs4 import BeautifulSoup as bs # for parsing html
+import pycurl as pc
 
 
 scraper = cfscrape.create_scraper()
+url_home = "https://indiankanoon.org"
+url_browse = url_home+"/browse/"
 
 # for i in range(0,3):
 #     courts.pop(0)
@@ -22,13 +25,11 @@ scraper = cfscrape.create_scraper()
 def crawler(url) :
     content_home = scraper.get(url).content
     return bs(content_home, features="html.parser")
-        
 
-if __name__ == '__main__':
+# def download(url) :
 
+def browse() :  
     print("---- Indian Kanoon web crawler ----")
-    url_home = "https://indiankanoon.org"
-    url_browse = url_home+"/browse/"
 
     courts_name = []
     courts_url = []
@@ -51,6 +52,10 @@ if __name__ == '__main__':
     court_url = url_home + courts_url[court_user-1]
     print(f"\nYou have selected {courts_name[court_user-1]}.")
 
+    os.umask(0)
+    dir = os.curdir
+    os.makedirs(dir+'/'+courts_name[court_user-1], 0o777)
+
     s = crawler(court_url)
     years = []
     
@@ -64,3 +69,41 @@ if __name__ == '__main__':
     year_user = int(input("\nEnter the number of the year you want to crawl : "))
 
     print(years[year_user-1])
+
+
+def test():
+    url = "https://indiankanoon.org/search/?formInput=doctypes%3A%20delhidc%20fromdate%3A%201-8-2020%20todate%3A%2031-8-2020&pagenum=39"
+    s = crawler(url)
+
+    titles = []
+    file_num = []
+    for title in s.find_all('div', attrs={'class':'result_title'}) :
+        titles.append(title.a.string)
+        file_num.append(title.a['href'].split('/')[2])
+    
+    # print(titles)
+    # print(file_num)
+
+    doc_url = url_home+'/doc/'+file_num[0]+'/'
+    pdf = crawler(doc_url)
+    # print(pdf)
+    data = 'type=pdf'
+    r = scraper.post(doc_url, data=data, headers={'Content-Type': 'application/octet-stream'}, verify=False)
+    with open('test.pdf', 'wb') as f:
+        f.write(r.content)
+
+    # with open('test.pdf', 'wb') as f:
+    #     c = pc.Curl()
+    #     c.setopt(c.URL, doc_url)
+    #     c.setopt(c.WRITEDATA, f)
+    #     c.perform()
+    #     c.close()
+
+    # with open('test.pdf', 'wb') as f:
+    #     for chunk in pdf :
+    #         f.write(chunk)
+
+if __name__ == '__main__':
+    browse()
+    
+    
