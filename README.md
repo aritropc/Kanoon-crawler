@@ -2,7 +2,7 @@
 
 ## Web Crawler to scrape kanoon
 
-###### Kanoon Crawler scrapes documents from [Indian Kanoon](https://indiankanoon.org/)
+#### Kanoon Crawler scrapes documents from [Indian Kanoon](https://indiankanoon.org/)
 ``` For testing, the script has been limited to download upto 5 documents from each month ```
 
 ## Installation
